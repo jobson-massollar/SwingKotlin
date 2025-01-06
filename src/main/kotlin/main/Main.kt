@@ -226,7 +226,7 @@ object Panel1 {
         id = "panel1"
         border = BorderFactory.createEmptyBorder(10, 5, 10, 5)
         flowLayout {
-            align = LEFT
+            align = left
             filler(10)
             label("Nome:")
             textField(20, "Valor inicial") {
@@ -283,7 +283,7 @@ object Panel2 {
         horizontalBoxLayout {
             pane {
                 verticalBoxLayout {
-                    alignX = LEFT
+                    alignX = left
                     //filler(10)
                     label("Coluna 1") {
                         color = Color.RED
@@ -409,7 +409,7 @@ object Panel3 {
                 }
             }
             cell("W") {
-                anchor = NORTH
+                anchor = north
                 label("Spinners:")
             }
             cell("K") {
@@ -474,7 +474,7 @@ object Panel4 {
             north {
                 border = BorderFactory.createTitledBorder(" Norte ")
                 verticalBoxLayout {
-                    alignX = JComponent.CENTER_ALIGNMENT
+                    alignX = center
                     label("Norte")
                     button("Painel 1") {
                         id = "painel1"
@@ -503,7 +503,7 @@ object Panel4 {
             center {
                 border = BorderFactory.createTitledBorder(" Centro ")
                 flowLayout {
-                    align = LEFT
+                    align = left
                     label("Centro")
                 }
             }

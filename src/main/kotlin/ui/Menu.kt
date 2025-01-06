@@ -58,7 +58,7 @@ class Menu(private var parent: MenuBar, override val swingComponent: JMenu): Com
     internal fun setListener(onClick: ActionListener?) {
         components.forEach {
             val comp = it.swingComponent
-            comp.actionListeners.iterator().forEach {  comp.removeActionListener(it) }
+            comp.actionListeners.forEach {  comp.removeActionListener(it) }
             if (it.switchTo != null && this.parent.parent != null) {
                 comp.addActionListener(object: ActionListener {
                     override fun actionPerformed(e: ActionEvent?) {

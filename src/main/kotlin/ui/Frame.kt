@@ -21,8 +21,6 @@ val Frame.CENTER: String
 
 infix fun Int.x(other: Int) = Pair(this, other)
 
-//infix fun RootPane<*>.position(direction: String) = Pair(this, direction)
-
 class Frame(private val _frame: JFrame) {
 
     private var _currentPane: RootPane<*>? = null

@@ -95,24 +95,27 @@ sealed class FlowBuilder(layoutPane: LayoutPane<Component>,
     internal fun  verticalSplitPane(block: SplitPane.() -> Unit) = addComponent(SplitPane(JSplitPane(JSplitPane.VERTICAL_SPLIT)), block)
 }
 
-val FlowLayoutBuilder.LEFT
-    get() = FlowLayout.LEFT
-val FlowLayoutBuilder.RIGHT
-    get() = FlowLayout.RIGHT
-val FlowLayoutBuilder.CENTER
-    get() = FlowLayout.CENTER
-
 class FlowLayoutBuilder(layoutPane: LayoutPane<Component>,
                         override val layoutManager: FlowLayout = FlowLayout()): FlowBuilder(layoutPane, layoutManager) {
 
-    internal var align = CENTER
+    enum class FlowAlignment(val alignment: Int) {
+        LEFT(FlowLayout.LEFT),
+        RIGHT(FlowLayout.RIGHT),
+        CENTER(FlowLayout.CENTER)
+    }
+
+    val left = FlowLayoutBuilder.FlowAlignment.LEFT
+    val right = FlowLayoutBuilder.FlowAlignment.RIGHT
+    val center = FlowLayoutBuilder.FlowAlignment.CENTER
+
+    internal var align = FlowAlignment.CENTER
         set(value) {
             field = value
-            layoutManager.alignment = value
+            layoutManager.alignment = value.alignment
         }
 
     init {
-        layoutManager.alignment = align
+        layoutManager.alignment = align.alignment
     }
 
     override fun filler(size: Int) {
@@ -122,28 +125,33 @@ class FlowLayoutBuilder(layoutPane: LayoutPane<Component>,
     override fun <T : Component> decorate(c: T): T = c
 }
 
-val BoxLayoutBuilder.LEFT
-    get() = JComponent.LEFT_ALIGNMENT
-val BoxLayoutBuilder.CENTER
-    get() = JComponent.CENTER_ALIGNMENT
-val BoxLayoutBuilder.RIGHT
-    get() = JComponent.RIGHT_ALIGNMENT
-val BoxLayoutBuilder.TOP
-    get() = JComponent.TOP_ALIGNMENT
-val BoxLayoutBuilder.BOTTOM
-    get() = JComponent.BOTTOM_ALIGNMENT
-
 sealed class BoxLayoutBuilder(layoutPane: LayoutPane<Component>,
                               override val layoutManager: BoxLayout): FlowBuilder(layoutPane, layoutManager) {
 
-    internal var alignX: Float = -1f
-    internal var alignY: Float = -1f
+    enum class Alignment(val value: Float) {
+        NONE(-1f),
+        LEFT(JComponent.LEFT_ALIGNMENT),
+        CENTER(JComponent.CENTER_ALIGNMENT),
+        RIGHT(JComponent.RIGHT_ALIGNMENT),
+        TOP(JComponent.TOP_ALIGNMENT),
+        BOTTOM(JComponent.BOTTOM_ALIGNMENT)
+    }
+
+    val none = Alignment.NONE
+    val left = Alignment.LEFT
+    val right = Alignment.RIGHT
+    val center = Alignment.CENTER
+    val top = Alignment.TOP
+    val bottom = Alignment.BOTTOM
+
+    internal var alignX: Alignment = none
+    internal var alignY: Alignment = none
 
     override fun <T : Component> decorate(c: T): T {
-        if (alignX != -1f)
-            c.swingComponent.alignmentX = alignX
-        if (alignY != -1f)
-            c.swingComponent.alignmentY = alignY
+        if (alignX != none)
+            c.swingComponent.alignmentX = alignX.value
+        if (alignY != none)
+            c.swingComponent.alignmentY = alignY.value
         return c
     }
 }
@@ -216,34 +224,6 @@ class BorderLayoutBuilder(layoutPane: LayoutPane<Component>,
 
 data class GridArea(val area: String, val startRow: Int, val startCol: Int, val endRow: Int, val endCol: Int)
 
-val GridBagLayoutBuilder.Cell.CENTER: Int
-    get() = GridBagConstraints.CENTER
-val GridBagLayoutBuilder.Cell.NORTH: Int
-    get() = GridBagConstraints.NORTH
-val GridBagLayoutBuilder.Cell.SOUTH: Int
-    get() = GridBagConstraints.SOUTH
-val GridBagLayoutBuilder.Cell.WEST: Int
-    get() = GridBagConstraints.WEST
-val GridBagLayoutBuilder.Cell.EAST: Int
-    get() = GridBagConstraints.EAST
-val GridBagLayoutBuilder.Cell.NORTHEAST: Int
-    get() = GridBagConstraints.NORTHEAST
-val GridBagLayoutBuilder.Cell.NORTHWEST: Int
-    get() = GridBagConstraints.NORTHWEST
-val GridBagLayoutBuilder.Cell.SOUTHEAST: Int
-    get() = GridBagConstraints.SOUTHEAST
-val GridBagLayoutBuilder.Cell.SOUTHWEST: Int
-    get() = GridBagConstraints.SOUTHWEST
-
-val GridBagLayoutBuilder.Cell.NONE: Int
-    get() = GridBagConstraints.NONE
-val GridBagLayoutBuilder.Cell.VERTICAL: Int
-    get() = GridBagConstraints.VERTICAL
-val GridBagLayoutBuilder.Cell.HORIZONTAL: Int
-    get() = GridBagConstraints.HORIZONTAL
-val GridBagLayoutBuilder.Cell.BOTH: Int
-    get() = GridBagConstraints.BOTH
-
 class GridBagLayoutBuilder(layoutPane: LayoutPane<Component>,
                            override val layoutManager: GridBagLayout = GridBagLayout()): LayoutBuilder(layoutPane, layoutManager) {
     private val areas: MutableSet<String> = mutableSetOf()
@@ -265,9 +245,42 @@ class GridBagLayoutBuilder(layoutPane: LayoutPane<Component>,
 
     class Cell(val gridArea: GridArea, private val parent: GridBagLayoutBuilder) {
 
-        internal var anchor: Int = NORTHWEST
+        enum class Anchor(val value: Int) {
+            CENTER(GridBagConstraints.CENTER),
+            NORTH(GridBagConstraints.NONE),
+            SOUTH(GridBagConstraints.SOUTH),
+            EAST(GridBagConstraints.EAST),
+            WEST(GridBagConstraints.WEST),
+            NORTHEAST(GridBagConstraints.NORTHEAST),
+            NORTHWEST(GridBagConstraints.NORTHWEST),
+            SOUTHEAST(GridBagConstraints.SOUTHEAST),
+            SOUTHWEST(GridBagConstraints.SOUTHWEST)
+        }
 
-        internal var fill: Int = NONE
+        enum class Fill(val value: Int) {
+            NONE(GridBagConstraints.NONE),
+            VERTICAL(GridBagConstraints.VERTICAL),
+            HORIZONTAL(GridBagConstraints.HORIZONTAL),
+            BOTH(GridBagConstraints.BOTH)
+        }
+
+        val none = Fill.NONE
+        val vertical = Fill.VERTICAL
+        val horizontal = Fill.HORIZONTAL
+        val both = Fill.BOTH
+        val center = Anchor.CENTER
+        val north = Anchor.NORTHEAST
+        val south = Anchor.SOUTH
+        val east = Anchor.EAST
+        val west = Anchor.WEST
+        val northeast = Anchor.NORTHEAST
+        val northwest = Anchor.NORTHWEST
+        val southeast = Anchor.SOUTHEAST
+        val southwest = Anchor.SOUTHWEST
+
+        internal var anchor: Anchor = northwest
+
+        internal var fill: Fill = none
 
         fun button(label: String, block: (Button.() -> Unit)? = null) = addComponent(Button(JButton(label)), block)
 
@@ -324,8 +337,8 @@ class GridBagLayoutBuilder(layoutPane: LayoutPane<Component>,
             parent.gbc.gridy = gridArea.startRow
             parent.gbc.gridwidth = gridArea.endCol - gridArea.startCol + 1
             parent.gbc.gridheight = gridArea.endRow - gridArea.startRow + 1
-            parent.gbc.anchor = anchor
-            parent.gbc.fill = fill
+            parent.gbc.anchor = anchor.value
+            parent.gbc.fill = fill.value
             parent.gbc.weightx = if (gridArea.endCol == parent.lastColumn) 1.0 else 0.0
             parent.gbc.weighty = if (gridArea.endRow == parent.lastRow) 1.0 else 0.0
             parent.layoutPane.addConstraint(c, parent.gbc)
