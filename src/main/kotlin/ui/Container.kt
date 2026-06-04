@@ -99,6 +99,8 @@ sealed class RootPane<T: Component>(swingComponent: JComponent): ComponentCollec
                 is MenuItem,
                 is MenuBar,
                 is SplitPane,
+                is ToolBar,
+                is TButton,
                 is Pane -> null
                 is TextArea -> it.swingComponent.text = it.text
                 is TextField -> it.swingComponent.text = it.text
